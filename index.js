@@ -5,6 +5,7 @@ const app = express()
 const mongoose = require('mongoose')
 const Person = require('./models/person')
 const Penalty = require('./models/penalty')
+const { response } = require('express')
 
 const requestLogger = (request, response, next) => {
 	console.log('Method:', request.method)
@@ -38,6 +39,23 @@ app.get('/api/persons/:id', (request, response, next) => {
 		.catch(error => {
 			next(error)
 		})
+})
+
+app.post('/api/persons', (req, res) => {
+	const body = req.body
+	console.log(body)
+
+	if (body.name === undefined) {
+		return res.status(400).json({ error: 'name missing' })
+	}
+
+	const person = new Person({
+		name: body.name
+	})
+
+	person.save().then(savedPerson => {
+		res.json(savedPerson)
+	})
 })
 
 
