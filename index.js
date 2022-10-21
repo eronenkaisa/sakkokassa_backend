@@ -1,5 +1,6 @@
 require('dotenv').config()
 const express = require('express')
+const cors = require('cors')
 const app = express()
 const mongoose = require('mongoose')
 const Person = require('./models/person')
@@ -13,9 +14,10 @@ const requestLogger = (request, response, next) => {
 	next()
 }
 
+app.use(express.static('build'))
 app.use(express.json())
-
 app.use(requestLogger)
+app.use(cors())
 
 
 app.get('/api/persons', (req, res) => {
@@ -38,8 +40,15 @@ app.get('/api/persons/:id', (request, response, next) => {
 		})
 })
 
+
 app.get('/api/penalties', (req, res) => {
 	Penalty.find({}).then(penalties => {
+		res.json(penalties)
+	})
+})
+
+app.get('/api/penalties/:personId', (req, res) => {
+	Penalty.find({ personId: req.params.personId }).then(penalties => {
 		res.json(penalties)
 	})
 })

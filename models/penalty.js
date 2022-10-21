@@ -11,13 +11,16 @@ mongoose.connect(url)
 		console.log('error connecting to MongoDB:', error.message)
 	})
 
+
 const penaltySchema = new mongoose.Schema({
-	playerId: String,
+	personId: String,
 	date: String,
-	comment: String,
+	reason: String,
 	sum: Number,
+	comment: String,
 	paid: Boolean,
 })
+
 
 penaltySchema.set('toJSON', {
 	transform: (document, returnedObject) => {
