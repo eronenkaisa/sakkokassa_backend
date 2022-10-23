@@ -71,6 +71,28 @@ app.get('/api/penalties/:personId', (req, res) => {
 	})
 })
 
+app.post('/api/penalties/:personId', (req, res) => {
+	const body = req.body
+	console.log('Eka logi', body)
+
+	if (body.personId === undefined) {
+		return res.status(400).json({ error: 'personId missing' })
+	}
+
+	const penalty = new Penalty({
+		personId: body.personId,
+		date: body.date,
+		reason: body.reason,
+		sum: body.sum,
+		comment: body.comment,
+		paid: body.paid
+	})
+
+	penalty.save().then(savedPenalty => {
+		res.json(savedPenalty)
+	})
+})
+
 
 /* app.get('/api/notes/:id', (request, response) => {
 	const id = Number(request.params.id)
