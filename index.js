@@ -27,13 +27,13 @@ app.get('/api/persons', (req, res) => {
 	})
 })
 
-app.get('/api/persons/:id', (request, response, next) => {
-	Person.findById(request.params.id)
+app.get('/api/persons/:personId', (req, res, next) => {
+	Person.findById(req.params.personId)
 		.then(person => {
 			if (person) {
-				response.json(person)
+				res.json(person)
 			} else {
-				response.status(404).end()
+				res.status(404).end()
 			}
 		})
 		.catch(error => {
@@ -56,6 +56,14 @@ app.post('/api/persons', (req, res) => {
 	person.save().then(savedPerson => {
 		res.json(savedPerson)
 	})
+})
+
+app.delete('/api/persons/:personId', (req, res, next) => {
+	Person.findByIdAndRemove(req.params.personId)
+		.then(result => {
+			res.status(204).end()
+		})
+		.catch(error => next(error))
 })
 
 
