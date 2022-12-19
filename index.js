@@ -23,6 +23,7 @@ app.use(cors())
 
 app.get('/api/persons', (req, res) => {
 	Person.find({}).then(persons => {
+		console.log('ihmiset:', persons)
 		res.json(persons)
 	})
 })
@@ -58,13 +59,21 @@ app.post('/api/persons', (req, res) => {
 	})
 })
 
+//Deletes person and her/his penalties
 app.delete('/api/persons/:personId', (req, res, next) => {
 	Person.findByIdAndRemove(req.params.personId)
 		.then(result => {
 			res.status(204).end()
 		})
 		.catch(error => next(error))
+
+	Penalty.deleteMany({ personId: req.params.personId }).then(result => {
+		res.status(204).end()
+	})
+		.catch(error => next(error))
+
 })
+
 
 
 app.get('/api/penalties', (req, res) => {
@@ -79,11 +88,11 @@ app.get('/api/penalties/:personId', (req, res) => {
 	})
 })
 
-app.post('/api/penalties/:personId', (req, res) => {
+app.post('/api/penalties', (req, res) => {
 	const body = req.body
 	console.log('Eka logi', body)
 
-	if (body.personId === undefined) {
+	if (body.personId === '') {
 		return res.status(400).json({ error: 'personId missing' })
 	}
 
@@ -91,9 +100,9 @@ app.post('/api/penalties/:personId', (req, res) => {
 		personId: body.personId,
 		date: body.date,
 		reason: body.reason,
-		sum: body.sum,
+		sum: body.sum * 100,
 		comment: body.comment,
-		paid: body.paid
+		paid: false
 	})
 
 	penalty.save().then(savedPenalty => {
@@ -102,52 +111,6 @@ app.post('/api/penalties/:personId', (req, res) => {
 })
 
 
-/* app.get('/api/notes/:id', (request, response) => {
-	const id = Number(request.params.id)
-	const note = notes.find(note => note.id === id)
-	if (note) {
-		response.json(note)
-	} else {
-		response.status(404).end()
-	}
-}) */
-
-
-
-/* app.delete('/api/notes/:id', (request, response) => {
-	const id = Number(request.params.id)
-	notes = notes.filter(note => note.id !== id)
-
-	response.status(204).end()
-}) */
-
-/* const generateId = () => {
-	const maxId = notes.length > 0
-		? Math.max(...notes.map(n => n.id))
-		: 0
-	return maxId + 1
-}
-
-app.post('/api/notes', (request, response) => {
-	const body = request.body
-
-	if (!body.content) {
-		return response.status(400).json({
-			error: 'content missing'
-		})
-	}
-
-	const note = {
-		content: body.content,
-		important: body.important || false,
-		date: new Date(),
-		id: generateId(),
-	}
-
-	notes = notes.concat(note)
-
-	response.json(note)
-}) */
 
 
 const unknownEndpoint = (request, response) => {
