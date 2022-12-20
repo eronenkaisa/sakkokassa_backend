@@ -2,9 +2,10 @@ require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
 const app = express()
-const mongoose = require('mongoose')
+require('./mongoose')
 const Person = require('./models/person')
 const Penalty = require('./models/penalty')
+const PenaltyType = require('./models/penaltyType')
 const { response } = require('express')
 
 const requestLogger = (request, response, next) => {
@@ -23,7 +24,6 @@ app.use(cors())
 
 app.get('/api/persons', (req, res) => {
 	Person.find({}).then(persons => {
-		console.log('ihmiset:', persons)
 		res.json(persons)
 	})
 })
@@ -90,7 +90,7 @@ app.get('/api/penalties/:personId', (req, res) => {
 
 app.post('/api/penalties', (req, res) => {
 	const body = req.body
-	console.log('Eka logi', body)
+	console.log('POST penalties runko:', body)
 
 	if (body.personId === '') {
 		return res.status(400).json({ error: 'personId missing' })
@@ -99,7 +99,7 @@ app.post('/api/penalties', (req, res) => {
 	const penalty = new Penalty({
 		personId: body.personId,
 		date: body.date,
-		reason: body.reason,
+		type: body.type,
 		sum: body.sum * 100,
 		comment: body.comment,
 		paid: false
@@ -107,6 +107,29 @@ app.post('/api/penalties', (req, res) => {
 
 	penalty.save().then(savedPenalty => {
 		res.json(savedPenalty)
+	})
+})
+
+app.get('/api/penaltyTypes', (req, res) => {
+	PenaltyType.find({}).then(penaltyTypes => {
+		res.json(penaltyTypes)
+	})
+})
+
+app.post('/api/penaltyTypes', (req, res) => {
+	const body = req.body
+	console.log(body)
+
+	if (body.type === undefined) {
+		return res.status(400).json({ error: 'penalty type missing' })
+	}
+
+	const penaltyType = new PenaltyType({
+		type: body.type
+	})
+
+	penaltyType.save().then(savedType => {
+		res.json(savedType)
 	})
 })
 
